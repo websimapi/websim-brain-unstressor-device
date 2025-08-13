@@ -1,8 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('interactive-canvas');
     const ctx = canvas.getContext('2d');
+    const statusValue = document.getElementById('status-value');
+    const statusLight = document.querySelector('.status-light');
+    const headerTitle = document.querySelector('.device-header h1');
+
     let particlesArray = [];
     let animationFrameId;
+    let hue = 0;
+
+    const colors = [
+        '#00ffff', // Cyan
+        '#ff00ff', // Magenta
+        '#ffff00', // Yellow
+        '#00ff00', // Green
+        '#ff8800', // Orange
+        '#8800ff', // Purple
+    ];
+    let currentColorIndex = 0;
 
     const mouse = {
         x: null,
@@ -79,20 +94,25 @@ document.addEventListener('DOMContentLoaded', () => {
             let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
             let directionX = (Math.random() * 0.4) - 0.2;
             let directionY = (Math.random() * 0.4) - 0.2;
-            let color = '#4CAF50';
+            
+            // Assign a color from the palette
+            let color = colors[Math.floor(Math.random() * colors.length)];
+            
             particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
         }
     }
     
     function connect() {
         let opacityValue = 1;
+        const baseColor = `hsl(${hue}, 100%, 50%)`;
+
         for (let a = 0; a < particlesArray.length; a++) {
             for (let b = a; b < particlesArray.length; b++) {
                 let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) +
                                ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
                 if (distance < (canvas.width / 7) * (canvas.height / 7)) {
                     opacityValue = 1 - (distance / 20000);
-                    ctx.strokeStyle = `rgba(76, 175, 80, ${opacityValue})`;
+                    ctx.strokeStyle = `hsla(${hue}, 100%, 70%, ${opacityValue})`;
                     ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
@@ -110,6 +130,18 @@ document.addEventListener('DOMContentLoaded', () => {
             particlesArray[i].update();
         }
         connect();
+        hue = (hue + 0.5) % 360;
+
+        // Update UI colors
+        const newColor = `hsl(${hue}, 100%, 50%)`;
+        const newShadowColor = `hsl(${hue}, 100%, 60%)`;
+        statusValue.style.color = newColor;
+        statusLight.style.backgroundColor = newColor;
+        statusLight.style.boxShadow = `0 0 10px ${newShadowColor}`;
+        headerTitle.style.color = newColor;
+        headerTitle.style.textShadow = `0 0 10px ${newShadowColor}, 0 0 20px ${newShadowColor}`;
+        document.getElementById('audio-toggle').style.borderColor = newColor;
+
         animationFrameId = requestAnimationFrame(animate);
     }
 
@@ -156,4 +188,3 @@ document.addEventListener('DOMContentLoaded', () => {
     audio.onplay = () => { isPlaying = true; };
     audio.onpause = () => { isPlaying = false; };
 });
-
