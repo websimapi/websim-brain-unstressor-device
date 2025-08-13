@@ -85,7 +85,11 @@ h1 {
     width: 100%;
     display: block;
     background: radial-gradient(circle at center, #111827, #0d1117);
-    cursor: none;
+    cursor: grab;
+}
+
+#interactive-canvas:active {
+    cursor: grabbing;
 }
 
 .status-text {

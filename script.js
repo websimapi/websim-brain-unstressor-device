@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let particlesArray = [];
     let animationFrameId;
     let hue = 0;
+    let isDragging = false;
 
     const colors = [
         '#00ffff', // Cyan
@@ -25,13 +26,72 @@ document.addEventListener('DOMContentLoaded', () => {
         radius: 100,
     };
 
-    canvas.addEventListener('mousemove', (event) => {
+    function updateMousePosition(event) {
         const rect = canvas.getBoundingClientRect();
-        mouse.x = event.clientX - rect.left;
-        mouse.y = event.clientY - rect.top;
+        let clientX, clientY;
+
+        if (event.touches) {
+            if (event.touches.length > 0) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else {
+                return; // No touches, do nothing
+            }
+        } else {
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+
+        mouse.x = clientX - rect.left;
+        mouse.y = clientY - rect.top;
+    }
+
+    // Mouse Events
+    canvas.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        updateMousePosition(event);
     });
-    
+
+    canvas.addEventListener('mousemove', (event) => {
+        if (isDragging) {
+            updateMousePosition(event);
+        }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+        isDragging = false;
+        mouse.x = undefined;
+        mouse.y = undefined;
+    });
+
     canvas.addEventListener('mouseleave', () => {
+        isDragging = false;
+        mouse.x = undefined;
+        mouse.y = undefined;
+    });
+
+    // Touch Events
+    canvas.addEventListener('touchstart', (event) => {
+        isDragging = true;
+        updateMousePosition(event);
+        event.preventDefault();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (event) => {
+        if (isDragging) {
+            updateMousePosition(event);
+            event.preventDefault();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => {
+        isDragging = false;
+        mouse.x = undefined;
+        mouse.y = undefined;
+    });
+
+    canvas.addEventListener('touchcancel', () => {
+        isDragging = false;
         mouse.x = undefined;
         mouse.y = undefined;
     });
@@ -61,21 +121,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.directionY = -this.directionY;
             }
 
-            let dx = mouse.x - this.x;
-            let dy = mouse.y - this.y;
-            let distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < mouse.radius + this.size) {
-                if (mouse.x < this.x && this.x < canvas.width - this.size * 10) {
-                    this.x += 5;
-                }
-                if (mouse.x > this.x && this.x > this.size * 10) {
-                    this.x -= 5;
-                }
-                if (mouse.y < this.y && this.y < canvas.height - this.size * 10) {
-                    this.y += 5;
-                }
-                if (mouse.y > this.y && this.y > this.size * 10) {
-                    this.y -= 5;
+            if (mouse.x !== undefined && mouse.y !== undefined) {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < mouse.radius + this.size) {
+                    const force = (mouse.radius - distance) / mouse.radius;
+                    const moveX = (dx / distance) * force * 5;
+                    const moveY = (dy / distance) * force * 5;
+                    
+                    if (mouse.x < this.x && this.x < canvas.width - this.size * 2) {
+                        this.x += moveX;
+                    }
+                    if (mouse.x > this.x && this.x > this.size * 2) {
+                        this.x += moveX;
+                    }
+                    if (mouse.y < this.y && this.y < canvas.height - this.size * 2) {
+                        this.y += moveY;
+                    }
+                    if (mouse.y > this.y && this.y > this.size * 2) {
+                        this.y += moveY;
+                    }
                 }
             }
 
