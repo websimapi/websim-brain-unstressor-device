@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusValue = document.getElementById('status-value');
     const statusLight = document.querySelector('.status-light');
     const headerTitle = document.querySelector('.device-header h1');
+    const addParticleBtn = document.getElementById('add-particle');
+    const removeParticleBtn = document.getElementById('remove-particle');
+    const particleCountSpan = document.getElementById('particle-count');
 
     let particlesArray = [];
     let animationFrameId;
@@ -96,6 +99,41 @@ document.addEventListener('DOMContentLoaded', () => {
         mouse.y = undefined;
     });
 
+    // Particle Controls
+    function addParticles(count) {
+        for (let i = 0; i < count; i++) {
+            if (particlesArray.length >= 500) { // Max particles limit
+                addParticleBtn.disabled = true;
+                return;
+            }
+            let size = (Math.random() * 3) + 1;
+            let x = (Math.random() * ((canvas.width - size * 2) - (size * 2)) + size * 2);
+            let y = (Math.random() * ((canvas.height - size * 2) - (size * 2)) + size * 2);
+            let directionX = (Math.random() * 0.4) - 0.2;
+            let directionY = (Math.random() * 0.4) - 0.2;
+            let color = colors[Math.floor(Math.random() * colors.length)];
+            particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+        }
+        updateParticleCount();
+        removeParticleBtn.disabled = particlesArray.length === 0;
+    }
+
+    function removeParticles(count) {
+        particlesArray.splice(0, count);
+        updateParticleCount();
+        addParticleBtn.disabled = particlesArray.length >= 500;
+        if (particlesArray.length === 0) {
+            removeParticleBtn.disabled = true;
+        }
+    }
+
+    function updateParticleCount() {
+        particleCountSpan.textContent = particlesArray.length;
+    }
+
+    addParticleBtn.addEventListener('click', () => addParticles(10));
+    removeParticleBtn.addEventListener('click', () => removeParticles(10));
+
     class Particle {
         constructor(x, y, directionX, directionY, size, color) {
             this.x = x;
@@ -166,6 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
         }
+        updateParticleCount();
+        removeParticleBtn.disabled = particlesArray.length === 0;
+        addParticleBtn.disabled = particlesArray.length >= 500;
     }
     
     function connect() {
@@ -207,6 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
         headerTitle.style.color = newColor;
         headerTitle.style.textShadow = `0 0 10px ${newShadowColor}, 0 0 20px ${newShadowColor}`;
         document.getElementById('audio-toggle').style.borderColor = newColor;
+        
+        // Update new controls color
+        document.documentElement.style.setProperty('--current-color', newColor);
 
         animationFrameId = requestAnimationFrame(animate);
     }

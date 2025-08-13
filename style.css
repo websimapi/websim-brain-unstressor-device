@@ -35,6 +35,7 @@ body {
     flex-shrink: 0;
     user-select: none;
     transition: padding 0.3s ease-in-out;
+    position: relative;
 }
 
 .device-header {
@@ -92,6 +93,53 @@ h1 {
     cursor: grabbing;
 }
 
+.particle-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#add-particle, #remove-particle {
+    background: transparent;
+    border: 1px solid var(--current-color, #4CAF50);
+    color: var(--current-color, #4CAF50);
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 0;
+    user-select: none;
+}
+
+#add-particle:hover, #remove-particle:hover {
+    background: var(--current-color, #4CAF50);
+    color: #1a1a22;
+    box-shadow: 0 0 10px var(--current-color, #4CAF50);
+}
+
+#add-particle:disabled, #remove-particle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: transparent;
+    color: var(--current-color, #4CAF50);
+    box-shadow: none;
+}
+
+#particle-count {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--current-color, #4CAF50);
+    min-width: 40px;
+    text-align: center;
+    transition: color 0.1s linear;
+}
+
 .status-text {
     font-size: 1rem;
     font-weight: 300;
@@ -106,8 +154,8 @@ h1 {
 
 #audio-toggle {
     background: transparent;
-    border: 1px solid #4CAF50;
-    color: #4CAF50;
+    border: 1px solid var(--current-color, #4CAF50);
+    color: #e0e0e0;
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -151,6 +199,11 @@ h1 {
     h1 {
         font-size: 1rem;
         letter-spacing: 2px;
+    }
+    .particle-controls {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
     }
     .status-text {
         font-size: 0.8rem;
